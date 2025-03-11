@@ -1,0 +1,84 @@
+{% extends "base/base.html" %}
+
+{% block title %}VarAI - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 text-center mb-5">
+        <h1 class="display-4">Welcome to VarAI</h1>
+        <p class="lead">Network Device Configuration Management System</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Client Management</h5>
+                <p class="card-text">Manage client organizations and their contact information.</p>
+                <a href="/admin/clients/client/" class="btn btn-primary">Manage Clients</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Project Management</h5>
+                <p class="card-text">Organize work by projects associated with clients.</p>
+                <a href="/admin/projects/project/" class="btn btn-primary">Manage Projects</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Device Configuration</h5>
+                <p class="card-text">Upload and parse network device configuration files.</p>
+                <a href="/admin/parsers/devicefile/" class="btn btn-primary">Manage Device Files</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Inventory Management</h5>
+                <p class="card-text">View and manage structured data about network devices, interfaces, VRFs, ACLs, and routing tables.</p>
+                <a href="/admin/inventory/device/" class="btn btn-primary">View Inventory</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">AI-Assisted Reporting</h5>
+                <p class="card-text">Generate reports using CrewAI for intelligent analysis of your network infrastructure.</p>
+                <a href="/admin/reports/report/" class="btn btn-primary">Generate Reports</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>API Access</h5>
+            </div>
+            <div class="card-body">
+                <p>Access the system programmatically using our RESTful API:</p>
+                <ul>
+                    <li><a href="/api/clients/">Clients API</a></li>
+                    <li><a href="/api/projects/">Projects API</a></li>
+                    <li><a href="/api/parsers/">Parsers API</a></li>
+                    <li><a href="/api/inventory/">Inventory API</a></li>
+                    <li><a href="/api/reports/">Reports API</a></li>
+                </ul>
+                <a href="/api/" class="btn btn-secondary">Browse API</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
