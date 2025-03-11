@@ -1,0 +1,63 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Delete Device File" %}: {{ object.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+	<div class="row justify-content-center">
+		<div class="col-md-8">
+			<div class="card border-danger">
+				<div class="card-body text-center">
+					<h1 class="card-title text-danger mb-4">
+						<i class="fas fa-exclamation-triangle"></i>
+						{% trans "Delete Device File" %}
+					</h1>
+
+					<p class="lead mb-4">
+						{% blocktrans with name=object.name %}
+						Are you sure you want to delete the device file "{{ name }}"?
+						{% endblocktrans %}
+					</p>
+
+					<div class="alert alert-warning">
+						<i class="fas fa-info-circle"></i>
+						{% trans "This action cannot be undone. All parsed data associated with this file will also be deleted." %}
+					</div>
+
+					<div class="card mb-4">
+						<div class="card-body">
+							<h5 class="card-title">{% trans "File Details" %}</h5>
+							<dl class="row mb-0">
+								<dt class="col-sm-4">{% trans "Project" %}</dt>
+								<dd class="col-sm-8">{{ object.project.name }}</dd>
+
+								<dt class="col-sm-4">{% trans "Device Type" %}</dt>
+								<dd class="col-sm-8">{{ object.device_type }}</dd>
+
+								<dt class="col-sm-4">{% trans "File Name" %}</dt>
+								<dd class="col-sm-8">{{ object.filename }}</dd>
+
+								<dt class="col-sm-4">{% trans "Upload Date" %}</dt>
+								<dd class="col-sm-8">{{ object.created_at|date:"SHORT_DATETIME_FORMAT" }}</dd>
+							</dl>
+						</div>
+					</div>
+
+					<form method="post">
+						{% csrf_token %}
+						<div class="d-flex justify-content-center gap-3">
+							<a href="{% url 'parsers:devicefile-detail' object.pk %}" class="btn btn-secondary">
+								<i class="fas fa-times"></i> {% trans "Cancel" %}
+							</a>
+							<button type="submit" class="btn btn-danger">
+								<i class="fas fa-trash"></i> {% trans "Delete Device File" %}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %} 

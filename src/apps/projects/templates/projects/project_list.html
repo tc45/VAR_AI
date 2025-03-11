@@ -1,0 +1,153 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if selected_client %}
+{% blocktrans with client_name=selected_client.name %}Projects for {{ client_name }}{% endblocktrans %}
+{% else %}
+{% trans "Projects" %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h1>
+			{% if selected_client %}
+			{% blocktrans with client_name=selected_client.name %}
+			Projects for {{ client_name }}
+			{% endblocktrans %}
+			{% else %}
+			{% trans "Projects" %}
+			{% endif %}
+		</h1>
+		{% if perms.projects.add_project %}
+		<a href="{% url 'projects:project-create' %}{% if selected_client %}?client={{ selected_client.pk }}{% endif %}" class="btn btn-primary">
+			<i class="fas fa-plus"></i> {% trans "Add Project" %}
+		</a>
+		{% endif %}
+	</div>
+
+	<!-- Search and Filter Form -->
+	<form method="get" class="card mb-4">
+		<div class="card-body">
+			<div class="row g-3">
+				<div class="col-md-6">
+					<label for="search" class="form-label">{% trans "Search" %}</label>
+					<input type="text" name="search" id="search" class="form-control" 
+						placeholder="{% trans 'Search projects...' %}" value="{{ request.GET.search }}">
+				</div>
+				{% if not selected_client %}
+				<div class="col-md-6">
+					<label for="client" class="form-label">{% trans "Client" %}</label>
+					<select name="client" id="client" class="form-select">
+						<option value="">{% trans "All Clients" %}</option>
+						{% for client in clients %}
+						<option value="{{ client.pk }}" {% if request.GET.client == client.pk|stringformat:"s" %}selected{% endif %}>
+							{{ client.name }}
+						</option>
+						{% endfor %}
+					</select>
+				</div>
+				{% endif %}
+				<div class="col-12">
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-search"></i> {% trans "Search" %}
+					</button>
+					<a href="{% url 'projects:project-list' %}" class="btn btn-secondary">
+						<i class="fas fa-times"></i> {% trans "Clear" %}
+					</a>
+				</div>
+			</div>
+		</div>
+	</form>
+
+	<!-- Projects List -->
+	<div class="list-group">
+		{% for project in projects %}
+		<div class="list-group-item">
+			<div class="d-flex w-100 justify-content-between">
+				<h5 class="mb-1">
+					<a href="{% url 'projects:project-detail' project.pk %}" class="text-decoration-none">
+						{{ project.name }}
+					</a>
+				</h5>
+				<span class="badge bg-{{ project.status|yesno:'success,warning,danger' }}">
+					{{ project.get_status_display }}
+				</span>
+			</div>
+			{% if not selected_client %}
+			<p class="mb-1">
+				<strong>{% trans "Client" %}:</strong>
+				<a href="{% url 'clients:client-detail' project.client.pk %}" class="text-decoration-none">
+					{{ project.client.name }}
+				</a>
+			</p>
+			{% endif %}
+			{% if project.intent %}
+			<p class="mb-1">{{ project.intent|truncatewords:30 }}</p>
+			{% endif %}
+			<small>
+				{% if project.start_date %}
+				<span class="me-3">
+					<i class="fas fa-calendar-alt"></i>
+					{% trans "Start" %}: {{ project.start_date|date }}
+				</span>
+				{% endif %}
+				{% if project.end_date %}
+				<span class="me-3">
+					<i class="fas fa-calendar-check"></i>
+					{% trans "End" %}: {{ project.end_date|date }}
+				</span>
+				{% endif %}
+				<span>
+					<i class="fas fa-clock"></i>
+					{% trans "Created" %}: {{ project.created_at|date }}
+				</span>
+			</small>
+		</div>
+		{% empty %}
+		<div class="text-center py-4">
+			<p>{% trans "No projects found." %}</p>
+		</div>
+		{% endfor %}
+	</div>
+
+	<!-- Pagination -->
+	{% if is_paginated %}
+	<nav aria-label="{% trans 'Page navigation' %}" class="mt-4">
+		<ul class="pagination justify-content-center">
+			{% if page_obj.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.client %}&client={{ request.GET.client }}{% endif %}">
+					{% trans "Previous" %}
+				</a>
+			</li>
+			{% endif %}
+
+			{% for num in page_obj.paginator.page_range %}
+			{% if page_obj.number == num %}
+			<li class="page-item active">
+				<span class="page-link">{{ num }}</span>
+			</li>
+			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.client %}&client={{ request.GET.client }}{% endif %}">
+					{{ num }}
+				</a>
+			</li>
+			{% endif %}
+			{% endfor %}
+
+			{% if page_obj.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.client %}&client={{ request.GET.client }}{% endif %}">
+					{% trans "Next" %}
+				</a>
+			</li>
+			{% endif %}
+		</ul>
+	</nav>
+	{% endif %}
+</div>
+{% endblock %} 

@@ -23,12 +23,19 @@ from .views import HomeView
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('admin/', admin.site.urls),
-    # App URLs
-    path('api/clients/', include('apps.clients.urls')),
-    path('api/projects/', include('apps.projects.urls')),
-    path('api/parsers/', include('apps.parsers.urls')),
+    
+    # Web UI URLs
+    path('clients/', include('apps.clients.urls')),
+    path('projects/', include('apps.projects.urls')),
+    path('parsers/', include('apps.parsers.urls')),
+    
+    # API URLs
+    path('api/clients/', include('apps.clients.api.urls')),
+    path('api/projects/', include('apps.projects.api.urls')),
+    path('api/parsers/', include('apps.parsers.api.urls')),
     path('api/inventory/', include('apps.inventory.urls')),
     path('api/reports/', include('apps.reports.urls')),
+    
     # DRF browsable API
     path('api-auth/', include('rest_framework.urls')),
 ]

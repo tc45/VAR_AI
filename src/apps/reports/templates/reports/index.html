@@ -1,0 +1,105 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Reports Dashboard" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{% trans "Reports Dashboard" %}</h1>
+        {% if perms.reports.add_report %}
+        <a href="{% url 'reports:report-create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> {% trans "Generate Report" %}
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- Recent Reports -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans "Recent Reports" %}</h5>
+                    <div class="list-group list-group-flush">
+                        {% for report in recent_reports %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">
+                                    <a href="{% url 'reports:report-detail' report.pk %}" class="text-decoration-none">
+                                        {{ report.title }}
+                                    </a>
+                                </h6>
+                                <span class="badge bg-{{ report.status|yesno:'success,warning,danger' }}">
+                                    {{ report.get_status_display }}
+                                </span>
+                            </div>
+                            <p class="mb-1">
+                                <small>
+                                    <strong>{% trans "Project" %}:</strong>
+                                    <a href="{% url 'projects:project-detail' report.project.pk %}" class="text-decoration-none">
+                                        {{ report.project.name }}
+                                    </a>
+                                </small>
+                            </p>
+                            <small class="text-muted">
+                                <span class="me-3">
+                                    <i class="fas fa-user"></i>
+                                    {{ report.created_by.get_full_name|default:report.created_by.username }}
+                                </span>
+                                <span>
+                                    <i class="fas fa-clock"></i>
+                                    {{ report.created_at|date }}
+                                </span>
+                            </small>
+                        </div>
+                        {% empty %}
+                        <p class="text-center py-3">{% trans "No reports generated yet." %}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <!-- Statistics -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans "Statistics" %}</h5>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <small class="text-muted">{% trans "Total Reports" %}</small>
+                            <h6 class="mb-0">{{ total_reports }}</h6>
+                        </div>
+                        {% for status in reports_by_status %}
+                        <div class="list-group-item">
+                            <small class="text-muted">{{ status.status|title }} {% trans "Reports" %}</small>
+                            <h6 class="mb-0">{{ status.count }}</h6>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans "Quick Links" %}</h5>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'projects:project-list' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-project-diagram"></i> {% trans "View All Projects" %}
+                        </a>
+                        {% if perms.reports.add_report %}
+                        <a href="{% url 'reports:report-create' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-alt"></i> {% trans "Generate New Report" %}
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

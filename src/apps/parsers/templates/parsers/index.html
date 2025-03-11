@@ -1,0 +1,159 @@
+{% extends "base/base.html" %}
+
+{% block title %}VarAI - Device Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h2">Device Management</h1>
+            <a href="{% url 'parsers:devicefile-create' %}" class="btn btn-primary">
+                <i class="fa fa-upload"></i> Upload Device File
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Recent Device Files -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Device Files</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_device_files %}
+                    <div class="list-group">
+                        {% for device in recent_device_files %}
+                            <a href="{% url 'parsers:devicefile-detail' device.pk %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ device.name }}</h6>
+                                    <small>{{ device.created_at|timesince }} ago</small>
+                                </div>
+                                <p class="mb-1">Project: {{ device.project.name }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <small>Type: {{ device.device_type.name }}</small>
+                                    <small>Status: {{ device.status }}</small>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No device files found</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'parsers:devicefile-list' %}" class="btn btn-secondary">View All Devices</a>
+            </div>
+        </div>
+
+        <!-- Device Types -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Device Types</h5>
+            </div>
+            <div class="card-body">
+                {% if device_types %}
+                    <div class="row">
+                        {% for device_type in device_types %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ device_type.name }}</h6>
+                                        <p class="card-text">
+                                            <small class="text-muted">{{ device_type.devicefile_set.count }} devices</small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No device types found</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Statistics -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Total Devices</h6>
+                    <h2>{{ total_devices }}</h2>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-muted">Device Types</h6>
+                    <h2>{{ device_type_count }}</h2>
+                </div>
+                <div>
+                    <h6 class="text-muted">Projects with Devices</h6>
+                    <h2>{{ projects_with_devices }}</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Device Distribution -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Device Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="deviceDistributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Links</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{% url 'parsers:devicefile-create' %}" class="list-group-item list-group-item-action">
+                        <i class="fa fa-upload"></i> Upload Device File
+                    </a>
+                    <a href="{% url 'parsers:devicefile-list' %}" class="list-group-item list-group-item-action">
+                        <i class="fa fa-list"></i> View All Devices
+                    </a>
+                    <a href="{% url 'projects:project-list' %}" class="list-group-item list-group-item-action">
+                        <i class="fa fa-folder"></i> View Projects
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('deviceDistributionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: {{ device_type_labels|safe }},
+            datasets: [{
+                data: {{ device_type_counts|safe }},
+                backgroundColor: [
+                    '#28a745', '#17a2b8', '#ffc107', '#dc3545', '#6f42c1',
+                    '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#007bff'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'bottom'
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

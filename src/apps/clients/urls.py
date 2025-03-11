@@ -1,14 +1,13 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from . import views
 
 app_name = 'clients'
 
-# Create a router and register our viewsets with it
-router = DefaultRouter()
-router.register(r'', views.ClientViewSet)
-
 urlpatterns = [
-	# API endpoints
-	path('', include(router.urls)),
+	path('', views.ClientIndexView.as_view(), name='index'),
+	path('list/', views.ClientListView.as_view(), name='client-list'),
+	path('<int:pk>/', views.ClientDetailView.as_view(), name='client-detail'),
+	path('create/', views.ClientCreateView.as_view(), name='client-create'),
+	path('<int:pk>/edit/', views.ClientUpdateView.as_view(), name='client-update'),
+	path('<int:pk>/delete/', views.ClientDeleteView.as_view(), name='client-delete'),
 ] 

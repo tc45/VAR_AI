@@ -1,84 +1,158 @@
 {% extends "base/base.html" %}
 
-{% block title %}VarAI - Home{% endblock %}
+{% block title %}VarAI - Dashboard{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 text-center mb-5">
-        <h1 class="display-4">Welcome to VarAI</h1>
-        <p class="lead">Network Device Configuration Management System</p>
+{% if user.is_authenticated %}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="display-4 mb-4">Dashboard</h1>
+        </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Client Management</h5>
-                <p class="card-text">Manage client organizations and their contact information.</p>
-                <a href="/admin/clients/client/" class="btn btn-primary">Manage Clients</a>
+    <div class="row">
+        <!-- Clients Card -->
+        <div class="col-md-6 col-xl-3 mb-4">
+            <div class="card border-left-primary h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Clients</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ client_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'clients:client-list' %}" class="btn btn-sm btn-primary">View All</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Project Management</h5>
-                <p class="card-text">Organize work by projects associated with clients.</p>
-                <a href="/admin/projects/project/" class="btn btn-primary">Manage Projects</a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Device Configuration</h5>
-                <p class="card-text">Upload and parse network device configuration files.</p>
-                <a href="/admin/parsers/devicefile/" class="btn btn-primary">Manage Device Files</a>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row">
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">Inventory Management</h5>
-                <p class="card-text">View and manage structured data about network devices, interfaces, VRFs, ACLs, and routing tables.</p>
-                <a href="/admin/inventory/device/" class="btn btn-primary">View Inventory</a>
+        <!-- Projects Card -->
+        <div class="col-md-6 col-xl-3 mb-4">
+            <div class="card border-left-success h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Projects</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ project_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-folder-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'projects:project-list' %}" class="btn btn-sm btn-success">View All</a>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <h5 class="card-title">AI-Assisted Reporting</h5>
-                <p class="card-text">Generate reports using CrewAI for intelligent analysis of your network infrastructure.</p>
-                <a href="/admin/reports/report/" class="btn btn-primary">Generate Reports</a>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5>API Access</h5>
+        <!-- Devices Card -->
+        <div class="col-md-6 col-xl-3 mb-4">
+            <div class="card border-left-info h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Devices</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ device_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-server fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'parsers:devicefile-list' %}" class="btn btn-sm btn-info">View All</a>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <p>Access the system programmatically using our RESTful API:</p>
-                <ul>
-                    <li><a href="/api/clients/">Clients API</a></li>
-                    <li><a href="/api/projects/">Projects API</a></li>
-                    <li><a href="/api/parsers/">Parsers API</a></li>
-                    <li><a href="/api/inventory/">Inventory API</a></li>
-                    <li><a href="/api/reports/">Reports API</a></li>
-                </ul>
-                <a href="/api/" class="btn btn-secondary">Browse API</a>
+        </div>
+
+        <!-- Reports Card -->
+        <div class="col-md-6 col-xl-3 mb-4">
+            <div class="card border-left-warning h-100">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Reports</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ report_count }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fa fa-file-text fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'reports:index' %}" class="btn btn-sm btn-warning">View All</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Recent Activity -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Projects</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_projects %}
+                        <div class="list-group">
+                            {% for project in recent_projects %}
+                                <a href="{% url 'projects:project-detail' project.pk %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ project.name }}</h6>
+                                        <small>{{ project.created_at|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-1">{{ project.client.name }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent projects</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Device Files</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_device_files %}
+                        <div class="list-group">
+                            {% for device in recent_device_files %}
+                                <a href="{% url 'parsers:devicefile-detail' device.pk %}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ device.name }}</h6>
+                                        <small>{{ device.created_at|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-1">{{ device.project.name }}</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent device files</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1 class="display-4">Welcome to VarAI</h1>
+            <p class="lead">Network Device Configuration Management System</p>
+            <div class="mt-4">
+                <a href="{% url 'admin:login' %}" class="btn btn-primary btn-lg">Login to Continue</a>
+            </div>
+        </div>
+    </div>
+{% endif %}
 {% endblock %} 

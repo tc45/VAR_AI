@@ -1,0 +1,91 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+{% if form.instance.pk %}
+{% trans "Edit Project" %}: {{ form.instance.name }}
+{% else %}
+{% trans "New Project" %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+	<div class="row justify-content-center">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-body">
+					<h1 class="card-title text-center mb-4">
+						{% if form.instance.pk %}
+						{% trans "Edit Project" %}
+						{% else %}
+						{% trans "New Project" %}
+						{% endif %}
+					</h1>
+
+					<form method="post" novalidate>
+						{% csrf_token %}
+						
+						<div class="row">
+							<!-- Basic Information -->
+							<div class="col-12">
+								<h5 class="mb-3">{% trans "Basic Information" %}</h5>
+								{{ form.client|crispy }}
+								{{ form.name|crispy }}
+								{{ form.status|crispy }}
+							</div>
+
+							<!-- Dates -->
+							<div class="col-md-6">
+								<h5 class="mb-3">{% trans "Project Timeline" %}</h5>
+								{{ form.start_date|crispy }}
+								{{ form.end_date|crispy }}
+							</div>
+
+							<!-- Split-off Project -->
+							<div class="col-md-6">
+								<h5 class="mb-3">{% trans "Project Relationship" %}</h5>
+								{{ form.is_split_off|crispy }}
+								{{ form.parent_project|crispy }}
+							</div>
+
+							<!-- Project Intent -->
+							<div class="col-12">
+								<h5 class="mb-3">{% trans "Project Intent" %}</h5>
+								{{ form.intent|crispy }}
+							</div>
+
+							<!-- Notes -->
+							<div class="col-12">
+								<h5 class="mb-3">{% trans "Additional Information" %}</h5>
+								{{ form.notes|crispy }}
+							</div>
+						</div>
+
+						<div class="d-flex justify-content-between mt-4">
+							{% if form.instance.pk %}
+							<a href="{% url 'projects:project-detail' form.instance.pk %}" class="btn btn-secondary">
+								<i class="fas fa-arrow-left"></i> {% trans "Back" %}
+							</a>
+							{% else %}
+							<a href="{% url 'projects:project-list' %}" class="btn btn-secondary">
+								<i class="fas fa-arrow-left"></i> {% trans "Back" %}
+							</a>
+							{% endif %}
+							<button type="submit" class="btn btn-primary">
+								<i class="fas fa-save"></i>
+								{% if form.instance.pk %}
+								{% trans "Update Project" %}
+								{% else %}
+								{% trans "Create Project" %}
+								{% endif %}
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %} 

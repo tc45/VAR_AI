@@ -1,0 +1,208 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<div>
+			<h1 class="mb-0">{{ project.name }}</h1>
+			<p class="text-muted mb-0">
+				<a href="{% url 'clients:client-detail' project.client.pk %}" class="text-decoration-none">
+					{{ project.client.name }}
+				</a>
+			</p>
+		</div>
+		<div>
+			{% if perms.projects.change_project %}
+			<a href="{% url 'projects:project-update' project.pk %}" class="btn btn-primary">
+				<i class="fas fa-edit"></i> {% trans "Edit" %}
+			</a>
+			{% endif %}
+			{% if perms.projects.delete_project %}
+			<a href="{% url 'projects:project-delete' project.pk %}" class="btn btn-danger">
+				<i class="fas fa-trash"></i> {% trans "Delete" %}
+			</a>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="row">
+		<!-- Project Details -->
+		<div class="col-md-8">
+			<!-- Basic Information -->
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Project Information" %}</h5>
+					<div class="row">
+						<div class="col-md-6">
+							<dl>
+								<dt>{% trans "Status" %}</dt>
+								<dd>
+									<span class="badge bg-{{ project.status|yesno:'success,warning,danger' }}">
+										{{ project.get_status_display }}
+									</span>
+								</dd>
+
+								<dt>{% trans "Start Date" %}</dt>
+								<dd>{{ project.start_date|default:"-" }}</dd>
+
+								<dt>{% trans "End Date" %}</dt>
+								<dd>{{ project.end_date|default:"-" }}</dd>
+							</dl>
+						</div>
+						<div class="col-md-6">
+							<dl>
+								<dt>{% trans "Created" %}</dt>
+								<dd>{{ project.created_at|date:"F j, Y" }}</dd>
+
+								<dt>{% trans "Last Updated" %}</dt>
+								<dd>{{ project.updated_at|date:"F j, Y" }}</dd>
+
+								<dt>{% trans "Created By" %}</dt>
+								<dd>{{ project.created_by.get_full_name|default:project.created_by.username }}</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Project Intent -->
+			{% if project.intent %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Project Intent" %}</h5>
+					<p class="card-text">{{ project.intent|linebreaks }}</p>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Notes -->
+			{% if project.notes %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Notes" %}</h5>
+					<p class="card-text">{{ project.notes|linebreaks }}</p>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Device Files -->
+			<div class="card">
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h5 class="card-title mb-0">{% trans "Device Files" %}</h5>
+						{% if perms.parsers.add_devicefile %}
+						<a href="{% url 'parsers:devicefile-create' %}?project={{ project.pk }}" class="btn btn-primary btn-sm">
+							<i class="fas fa-upload"></i> {% trans "Upload File" %}
+						</a>
+						{% endif %}
+					</div>
+					<div class="list-group">
+						{% for device_file in project.device_files.all %}
+						<div class="list-group-item list-group-item-action">
+							<div class="d-flex w-100 justify-content-between">
+								<h6 class="mb-1">{{ device_file.name }}</h6>
+								<small>{{ device_file.device_type.name }}</small>
+							</div>
+							<p class="mb-1">
+								<small>
+									<span class="me-3">
+										<i class="fas fa-file"></i>
+										{{ device_file.filename }}
+									</span>
+									<span class="me-3">
+										<i class="fas fa-clock"></i>
+										{{ device_file.created_at|date }}
+									</span>
+									{% if device_file.parsed %}
+									<span class="badge bg-success">
+										<i class="fas fa-check"></i>
+										{% trans "Parsed" %}
+									</span>
+									{% else %}
+									<span class="badge bg-warning">
+										<i class="fas fa-exclamation-triangle"></i>
+										{% trans "Not Parsed" %}
+									</span>
+									{% endif %}
+								</small>
+							</p>
+							{% if device_file.parse_errors %}
+							<div class="alert alert-danger mt-2 mb-0">
+								<small>{{ device_file.parse_errors }}</small>
+							</div>
+							{% endif %}
+						</div>
+						{% empty %}
+						<p class="text-center py-3">{% trans "No device files uploaded yet." %}</p>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Sidebar -->
+		<div class="col-md-4">
+			<!-- Split-off Project Information -->
+			{% if project.is_split_off %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Parent Project" %}</h5>
+					<a href="{% url 'projects:project-detail' project.parent_project.pk %}" class="text-decoration-none">
+						{{ project.parent_project.name }}
+					</a>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Child Projects -->
+			{% if project.child_projects.exists %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Child Projects" %}</h5>
+					<div class="list-group list-group-flush">
+						{% for child in project.child_projects.all %}
+						<a href="{% url 'projects:project-detail' child.pk %}" class="list-group-item list-group-item-action">
+							{{ child.name }}
+							<span class="badge bg-{{ child.status|yesno:'success,warning,danger' }} float-end">
+								{{ child.get_status_display }}
+							</span>
+						</a>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Project Reports -->
+			<div class="card">
+				<div class="card-body">
+					<div class="d-flex justify-content-between align-items-center mb-3">
+						<h5 class="card-title mb-0">{% trans "Reports" %}</h5>
+						{% if perms.reports.add_report %}
+						<a href="{% url 'reports:report-create' %}?project={{ project.pk }}" class="btn btn-primary btn-sm">
+							<i class="fas fa-file-alt"></i> {% trans "Generate Report" %}
+						</a>
+						{% endif %}
+					</div>
+					<div class="list-group">
+						{% for report in project.reports.all %}
+						<a href="{% url 'reports:report-detail' report.pk %}" class="list-group-item list-group-item-action">
+							<div class="d-flex w-100 justify-content-between">
+								<h6 class="mb-1">{{ report.title }}</h6>
+								<small>{{ report.created_at|date }}</small>
+							</div>
+							<small>{{ report.get_status_display }}</small>
+						</a>
+						{% empty %}
+						<p class="text-center py-3">{% trans "No reports generated yet." %}</p>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %} 

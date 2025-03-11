@@ -89,3 +89,54 @@ class DeviceFile(models.Model):
 	def filename(self):
 		"""Return the filename of the uploaded file"""
 		return os.path.basename(self.file.name)
+	
+	def parse_file(self):
+		"""
+		Parse the configuration file and save results to the inventory.
+		
+		Returns:
+			bool: True if parsing was successful, False otherwise.
+			
+		Raises:
+			Exception: Any unexpected exceptions that occur during parsing.
+		"""
+		# Reset parsing status and errors
+		self.parsed = False
+		self.parse_errors = ""
+		
+		try:
+			# Get appropriate parser using factory based on device type
+			from .parsers.factory import ParserFactory
+			
+			parser = ParserFactory.get_parser_for_device_type(self.device_type.slug)
+			if not parser:
+				self.parse_errors = f"No parser available for device type: {self.device_type.name}"
+				self.save(update_fields=['parsed', 'parse_errors'])
+				return False
+			
+			# Read the configuration file
+			self.file.seek(0)  # Ensure we're at the start of the file
+			config_text = self.file.read().decode('utf-8', errors='replace')
+			
+			# Parse the configuration
+			parsed_data = parser.parse(config_text)
+			
+			# TODO: Save parsed data to the inventory
+			# This will involve creating records in various inventory models
+			# based on the structured data returned by the parser
+			
+			# Update status
+			self.parsed = True
+			self.save(update_fields=['parsed', 'parse_errors'])
+			return True
+			
+		except ValueError as e:
+			# Handle parsing errors
+			self.parse_errors = f"Parsing error: {str(e)}"
+			self.save(update_fields=['parsed', 'parse_errors'])
+			return False
+		except Exception as e:
+			# Handle unexpected errors
+			self.parse_errors = f"Unexpected error: {str(e)}"
+			self.save(update_fields=['parsed', 'parse_errors'])
+			return False

@@ -1,0 +1,151 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ device_file.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<div>
+			<h1 class="mb-0">{{ device_file.name }}</h1>
+			<p class="text-muted mb-0">
+				<a href="{% url 'projects:project-detail' device_file.project.pk %}" class="text-decoration-none">
+					{{ device_file.project.name }}
+				</a>
+			</p>
+		</div>
+		<div>
+			{% if perms.parsers.change_devicefile %}
+			<a href="{% url 'parsers:devicefile-update' device_file.pk %}" class="btn btn-primary">
+				<i class="fas fa-edit"></i> {% trans "Edit" %}
+			</a>
+			{% endif %}
+			{% if perms.parsers.delete_devicefile %}
+			<a href="{% url 'parsers:devicefile-delete' device_file.pk %}" class="btn btn-danger">
+				<i class="fas fa-trash"></i> {% trans "Delete" %}
+			</a>
+			{% endif %}
+		</div>
+	</div>
+
+	<div class="row">
+		<!-- Device File Details -->
+		<div class="col-md-8">
+			<!-- Basic Information -->
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "File Information" %}</h5>
+					<div class="row">
+						<div class="col-md-6">
+							<dl>
+								<dt>{% trans "Device Type" %}</dt>
+								<dd>{{ device_file.device_type.name }}</dd>
+
+								<dt>{% trans "File Name" %}</dt>
+								<dd>{{ device_file.filename }}</dd>
+
+								<dt>{% trans "Status" %}</dt>
+								<dd>
+									{% if device_file.parsed %}
+									<span class="badge bg-success">
+										<i class="fas fa-check"></i> {% trans "Parsed" %}
+									</span>
+									{% else %}
+									<span class="badge bg-warning">
+										<i class="fas fa-exclamation-triangle"></i> {% trans "Not Parsed" %}
+									</span>
+									{% endif %}
+								</dd>
+							</dl>
+						</div>
+						<div class="col-md-6">
+							<dl>
+								<dt>{% trans "Uploaded" %}</dt>
+								<dd>{{ device_file.created_at|date:"F j, Y" }}</dd>
+
+								<dt>{% trans "Last Updated" %}</dt>
+								<dd>{{ device_file.updated_at|date:"F j, Y" }}</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Parse Errors -->
+			{% if device_file.parse_errors %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title text-danger">{% trans "Parse Errors" %}</h5>
+					<pre class="bg-light p-3 rounded"><code>{{ device_file.parse_errors }}</code></pre>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Notes -->
+			{% if device_file.notes %}
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Notes" %}</h5>
+					<p class="card-text">{{ device_file.notes|linebreaks }}</p>
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- File Preview -->
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "File Preview" %}</h5>
+					<div class="bg-light p-3 rounded">
+						<pre><code>{{ device_file.file.read|default:"File content not available." }}</code></pre>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Sidebar -->
+		<div class="col-md-4">
+			<!-- Actions -->
+			<div class="card mb-4">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Actions" %}</h5>
+					<div class="d-grid gap-2">
+						{% if not device_file.parsed %}
+						<button class="btn btn-primary">
+							<i class="fas fa-sync"></i> {% trans "Retry Parsing" %}
+						</button>
+						{% endif %}
+						<a href="{{ device_file.file.url }}" class="btn btn-secondary" download>
+							<i class="fas fa-download"></i> {% trans "Download File" %}
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Parsed Data Summary -->
+			{% if device_file.parsed %}
+			<div class="card">
+				<div class="card-body">
+					<h5 class="card-title">{% trans "Parsed Data Summary" %}</h5>
+					<div class="list-group list-group-flush">
+						<!-- This section would be populated with actual parsed data -->
+						<div class="list-group-item">
+							<small class="text-muted">{% trans "Interfaces" %}</small>
+							<h6 class="mb-0">24</h6>
+						</div>
+						<div class="list-group-item">
+							<small class="text-muted">{% trans "ACL Rules" %}</small>
+							<h6 class="mb-0">156</h6>
+						</div>
+						<div class="list-group-item">
+							<small class="text-muted">{% trans "VRFs" %}</small>
+							<h6 class="mb-0">3</h6>
+						</div>
+						<!-- Add more parsed data summaries as needed -->
+					</div>
+				</div>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %} 

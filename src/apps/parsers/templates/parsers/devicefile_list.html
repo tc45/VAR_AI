@@ -1,0 +1,165 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+
+{% block title %}
+{% if selected_project %}
+{% blocktrans with project_name=selected_project.name %}Device Files for {{ project_name }}{% endblocktrans %}
+{% else %}
+{% trans "Device Files" %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+	<div class="d-flex justify-content-between align-items-center mb-4">
+		<h1>
+			{% if selected_project %}
+			{% blocktrans with project_name=selected_project.name %}
+			Device Files for {{ project_name }}
+			{% endblocktrans %}
+			{% else %}
+			{% trans "Device Files" %}
+			{% endif %}
+		</h1>
+		{% if perms.parsers.add_devicefile %}
+		<a href="{% url 'parsers:devicefile-create' %}{% if selected_project %}?project={{ selected_project.pk }}{% endif %}" class="btn btn-primary">
+			<i class="fas fa-upload"></i> {% trans "Upload File" %}
+		</a>
+		{% endif %}
+	</div>
+
+	<!-- Search and Filter Form -->
+	<form method="get" class="card mb-4">
+		<div class="card-body">
+			<div class="row g-3">
+				<div class="col-md-4">
+					<label for="search" class="form-label">{% trans "Search" %}</label>
+					<input type="text" name="search" id="search" class="form-control" 
+						placeholder="{% trans 'Search device files...' %}" value="{{ request.GET.search }}">
+				</div>
+				{% if not selected_project %}
+				<div class="col-md-4">
+					<label for="project" class="form-label">{% trans "Project" %}</label>
+					<select name="project" id="project" class="form-select">
+						<option value="">{% trans "All Projects" %}</option>
+						{% for project in projects %}
+						<option value="{{ project.pk }}" {% if request.GET.project == project.pk|stringformat:"s" %}selected{% endif %}>
+							{{ project.name }}
+						</option>
+						{% endfor %}
+					</select>
+				</div>
+				{% endif %}
+				<div class="col-md-4">
+					<label for="device_type" class="form-label">{% trans "Device Type" %}</label>
+					<select name="device_type" id="device_type" class="form-select">
+						<option value="">{% trans "All Types" %}</option>
+						{% for device_type in device_types %}
+						<option value="{{ device_type.pk }}" {% if request.GET.device_type == device_type.pk|stringformat:"s" %}selected{% endif %}>
+							{{ device_type.name }}
+						</option>
+						{% endfor %}
+					</select>
+				</div>
+				<div class="col-12">
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-search"></i> {% trans "Search" %}
+					</button>
+					<a href="{% url 'parsers:devicefile-list' %}" class="btn btn-secondary">
+						<i class="fas fa-times"></i> {% trans "Clear" %}
+					</a>
+				</div>
+			</div>
+		</div>
+	</form>
+
+	<!-- Device Files List -->
+	<div class="list-group">
+		{% for device_file in device_files %}
+		<div class="list-group-item">
+			<div class="d-flex w-100 justify-content-between">
+				<h5 class="mb-1">
+					<a href="{% url 'parsers:devicefile-detail' device_file.pk %}" class="text-decoration-none">
+						{{ device_file.name }}
+					</a>
+				</h5>
+				<span class="badge {% if device_file.parsed %}bg-success{% else %}bg-warning{% endif %}">
+					{% if device_file.parsed %}
+					<i class="fas fa-check"></i> {% trans "Parsed" %}
+					{% else %}
+					<i class="fas fa-exclamation-triangle"></i> {% trans "Not Parsed" %}
+					{% endif %}
+				</span>
+			</div>
+			{% if not selected_project %}
+			<p class="mb-1">
+				<strong>{% trans "Project" %}:</strong>
+				<a href="{% url 'projects:project-detail' device_file.project.pk %}" class="text-decoration-none">
+					{{ device_file.project.name }}
+				</a>
+			</p>
+			{% endif %}
+			<p class="mb-1">
+				<strong>{% trans "Device Type" %}:</strong> {{ device_file.device_type.name }}
+			</p>
+			<small>
+				<span class="me-3">
+					<i class="fas fa-file"></i>
+					{{ device_file.filename }}
+				</span>
+				<span>
+					<i class="fas fa-clock"></i>
+					{% trans "Uploaded" %}: {{ device_file.created_at|date }}
+				</span>
+			</small>
+			{% if device_file.parse_errors %}
+			<div class="alert alert-danger mt-2 mb-0">
+				<small>{{ device_file.parse_errors }}</small>
+			</div>
+			{% endif %}
+		</div>
+		{% empty %}
+		<div class="text-center py-4">
+			<p>{% trans "No device files found." %}</p>
+		</div>
+		{% endfor %}
+	</div>
+
+	<!-- Pagination -->
+	{% if is_paginated %}
+	<nav aria-label="{% trans 'Page navigation' %}" class="mt-4">
+		<ul class="pagination justify-content-center">
+			{% if page_obj.has_previous %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project %}&project={{ request.GET.project }}{% endif %}{% if request.GET.device_type %}&device_type={{ request.GET.device_type }}{% endif %}">
+					{% trans "Previous" %}
+				</a>
+			</li>
+			{% endif %}
+
+			{% for num in page_obj.paginator.page_range %}
+			{% if page_obj.number == num %}
+			<li class="page-item active">
+				<span class="page-link">{{ num }}</span>
+			</li>
+			{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project %}&project={{ request.GET.project }}{% endif %}{% if request.GET.device_type %}&device_type={{ request.GET.device_type }}{% endif %}">
+					{{ num }}
+				</a>
+			</li>
+			{% endif %}
+			{% endfor %}
+
+			{% if page_obj.has_next %}
+			<li class="page-item">
+				<a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.project %}&project={{ request.GET.project }}{% endif %}{% if request.GET.device_type %}&device_type={{ request.GET.device_type }}{% endif %}">
+					{% trans "Next" %}
+				</a>
+			</li>
+			{% endif %}
+		</ul>
+	</nav>
+	{% endif %}
+</div>
+{% endblock %} 
