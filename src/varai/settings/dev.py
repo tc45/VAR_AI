@@ -10,7 +10,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-boy#t1ic)pl1my6yaj@vq+z9pn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'dev.varai.ai-scientia.com']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'dev.varai.ai-scientia.com']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,dev.varai.ai-scientia.com').split(',')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS]
 
 # Database
 DATABASES = {
